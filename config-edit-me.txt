@@ -1,6 +1,6 @@
 window.ACHILLES_CONFIG = {
-  shopifyDomain: "https://admin.shopify.com/store/90fe1f-84/settings/domains/146003525956",
-  variantId: "15647870058820",
+  shopifyDomain: "www.achillessport.com",
+  variantId: "57150364811588",
   quantity: 1,
   returnTo: "/cart"
 };
