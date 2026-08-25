@@ -2324,6 +2324,7 @@ async function addKitToCart(){
   form.id = formId;
   form.method = 'POST';
   form.action = `https://${domain}/cart/add`;
+  form.target = '_top'; // Break out of the Shopify iframe and open the cart in the full page.
   form.enctype = 'multipart/form-data';
   form.style.display = 'none';
 
