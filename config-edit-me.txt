@@ -1,0 +1,6 @@
+window.ACHILLES_CONFIG = {
+  shopifyDomain: "https://admin.shopify.com/store/90fe1f-84/settings/domains/146003525956",
+  variantId: "https://admin.shopify.com/store/90fe1f-84/products/15647870058820",
+  quantity: 1,
+  returnTo: "/cart"
+};
