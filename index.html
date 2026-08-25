@@ -2269,15 +2269,7 @@ function updateShopifyStatus(){
 }
 updateShopifyStatus();
 
-function addHiddenInput(form, name, value){
-  const input = document.createElement('input');
-  input.type = 'hidden';
-  input.name = name;
-  input.value = String(value ?? '');
-  form.appendChild(input);
-}
-
-function attachArtworkFilesToForm(formId){
+function getArtworkFiles(){
   const fileFields = [
     ['clubBadgeInput', 'Club Badge'],
     ['frontSponsorInput', 'Front Sponsor'],
@@ -2289,12 +2281,13 @@ function attachArtworkFilesToForm(formId){
     ['patternUploadSleeve', 'Custom Sleeve Pattern'],
     ['patternUploadShorts', 'Custom Shorts Pattern']
   ];
+  const artwork = [];
   fileFields.forEach(([id, label]) => {
     const input = document.getElementById(id);
-    if(!input) return;
-    input.setAttribute('form', formId);
-    input.setAttribute('name', `properties[${label}]`);
+    const file = input && input.files && input.files[0];
+    if(file) artwork.push({ label, file });
   });
+  return artwork;
 }
 
 async function addKitToCart(){
@@ -2309,30 +2302,10 @@ async function addKitToCart(){
   msg.style.color = 'var(--text-dim)';
 
   try{
-    // Keep the customer's production reference before leaving for Shopify.
     await captureAndDownloadKitExport();
   } catch(err){
     console.warn('Design export could not be downloaded before checkout:', err);
   }
-
-  const domain = normaliseShopifyDomain(shopifyConfig.shopifyDomain);
-  const formId = 'achillesShopifyCartForm';
-  const existing = document.getElementById(formId);
-  if(existing) existing.remove();
-
-  const form = document.createElement('form');
-  form.id = formId;
-  form.method = 'POST';
-  form.action = `https://${domain}/cart/add`;
-  form.target = '_top'; // Break out of the Shopify iframe and open the cart in the full page.
-  form.enctype = 'multipart/form-data';
-  form.style.display = 'none';
-
-  addHiddenInput(form, 'form_type', 'product');
-  addHiddenInput(form, 'utf8', '✓');
-  addHiddenInput(form, 'id', shopifyConfig.variantId);
-  addHiddenInput(form, 'quantity', shopifyConfig.quantity || 1);
-  addHiddenInput(form, 'return_to', shopifyConfig.returnTo || '/cart');
 
   const properties = {
     'Base colour': state.baseColor,
@@ -2352,17 +2325,40 @@ async function addKitToCart(){
     'Shorts number': state.shortsNumber || '(none)',
     'Full design summary': buildDesignSummary()
   };
-  Object.entries(properties).forEach(([key, value]) => {
-    addHiddenInput(form, `properties[${key}]`, value);
-  });
 
-  document.body.appendChild(form);
-  attachArtworkFilesToForm(formId);
-
-  msg.textContent = 'Opening your Shopify basket…';
+  msg.textContent = 'Adding your kit to Shopify…';
   msg.style.color = 'var(--gold)';
-  form.submit();
+
+  // The builder is hosted off-domain. Send the design to the Shopify parent
+  // page and let Shopify itself call /cart/add.js in the customer's session.
+  window.parent.postMessage({
+    type: 'ACHILLES_ADD_TO_CART',
+    variantId: String(shopifyConfig.variantId),
+    quantity: Number(shopifyConfig.quantity || 1),
+    properties,
+    artwork: getArtworkFiles()
+  }, '*');
+
+  // If the page was opened directly instead of embedded, tell the customer
+  // what to do rather than making a cross-domain cart request.
+  if(window.parent === window){
+    msg.textContent = 'Open this builder from the Achilles Sports Shopify Kit Builder page to add to basket.';
+    msg.style.color = 'var(--red)';
+  }
 }
+
+window.addEventListener('message', (event) => {
+  const data = event.data || {};
+  if(data.type !== 'ACHILLES_CART_RESULT') return;
+  const msg = document.getElementById('cartmsg');
+  if(data.ok){
+    msg.textContent = 'Added to basket. Opening your cart…';
+    msg.style.color = 'var(--gold)';
+  } else {
+    msg.textContent = data.message || 'Could not add the kit to your basket.';
+    msg.style.color = 'var(--red)';
+  }
+});
 
 document.getElementById('addcart').addEventListener('click', addKitToCart);
 
