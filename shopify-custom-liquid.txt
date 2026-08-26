@@ -1,0 +1,31 @@
+<!-- ACHILLES SPORTS KIT BUILDER -->
+<div class="achilles-builder-frame">
+  <iframe
+    src="YOUR_GITHUB_PAGES_URL"
+    title="Achilles Sports Kit Builder"
+    allow="fullscreen"
+    loading="eager">
+  </iframe>
+</div>
+
+<style>
+  .achilles-builder-frame {
+    width: 100%;
+    height: calc(100vh - 80px);
+    min-height: 800px;
+  }
+
+  .achilles-builder-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  @media screen and (max-width: 749px) {
+    .achilles-builder-frame {
+      height: 100vh;
+      min-height: 700px;
+    }
+  }
+</style>
