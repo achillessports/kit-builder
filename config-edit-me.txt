@@ -1,6 +1,0 @@
-window.ACHILLES_CONFIG = {
-  shopifyDomain: "http://90fe1f-84.myshopify.com/",
-  variantId: "57150364811588",
-  quantity: 1,
-  returnTo: "/cart"
-};
