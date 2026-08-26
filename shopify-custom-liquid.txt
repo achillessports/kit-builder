@@ -1,7 +1,7 @@
 <!-- ACHILLES SPORTS KIT BUILDER -->
 <div class="achilles-builder-frame">
   <iframe
-    src="YOUR_GITHUB_PAGES_URL"
+    src="https://achillessports.github.io/kit-builder/"
     title="Achilles Sports Kit Builder"
     allow="fullscreen"
     loading="eager">
